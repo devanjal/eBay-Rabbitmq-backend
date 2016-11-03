@@ -5,22 +5,20 @@ var object_id="vp_id";
 var mongo = require("./mongo");
 var mongoURL = "mongodb://localhost:27017/ebay";
 
-exports.getUser = function(req,res){
-    // These two variables come from the form on
-    // the views/login.hbs page
-    // var first_name = req.param("first_name");
-    // var last_name = req.param("last_name");
-    // var email = req.param("email");
-    // var password = req.param("password");
-    // console.log(password +" is the object");
+exports.getUser = function(msg, callback){
+   var res={};
     var json_responses;
 
     mongo.connect(mongoURL, function() {
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('advertisement');
-        var des = coll.find().toArray(function(err, items) {
-            console.log(items);
-            res.send(items);
+     coll.find().toArray(function(err, item) {
+
+           // res.send(items);
+           res.items=item;
+         console.log(res.items);
+            res.code = "200";                   
+            callback(null,res); 
         })
     })
 };

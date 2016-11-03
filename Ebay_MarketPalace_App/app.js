@@ -23,6 +23,9 @@ var express = require('express')
 	,order_history=require('./routes/order_history');
 var CronJob = require('cron').CronJob;
 var mysql=require('./routes/mysql');
+var amqp = require('amqp')
+	, util = require('util');
+var connection = amqp.createConnection({host:'127.0.0.1'});
 
 
 
@@ -35,43 +38,16 @@ var myaction=require("./routes/myaction");
 var app = express();
 
 //all environments
-app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(session({
-	secret: 'kotia_just_chill',
-	resave: true,
-	saveUninitialized: true
-}));
 
 
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/bower_components',  express.static(__dirname + '/bower_components'));
-app.use('/dist',  express.static(__dirname + '/dist'));
-app.use(function(req, res, next) {
-	res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Set-Cookie, cookie');
-	res.header("Access-Control-Allow-Credentials", true);
-	if (req.method === "OPTIONS") {
-		console.log("Server options");
-		res.end('');
-	} else {
-		next();
-	}
-});
+
+
 
 
 
 
 //development only
-if ('development' === app.get('env')) {
-	app.use(express.errorHandler());
-}
+
 
 //GET Requests
 app.get('/', routes.index);
@@ -188,8 +164,67 @@ var job = new CronJob('10 * * * * *', function () {
 	}, query_one);
 
 }, null, true, 'America/Los_Angeles');
-//
-http.createServer(app).listen(app.get('port'), function(){
-	console.log('Express server listening on port ' + app.get('port'));
-});
-//});
+connection.on('ready', function(){
+	console.log("listening on login_queue,profile_queue,member_queue");
+
+
+	connection.queue('profile_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+			
+			switch(message.type)
+			{
+				case 'Profile':
+					getAllUser.getUser(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+}
+})
+})
+	connection.queue('login_queue', function(q) {
+		q.subscribe(function (message, headers, deliveryInfo, m) {
+			util.log(util.format(deliveryInfo.routingKey, message));
+			util.log("Message: " + JSON.stringify(message));
+			util.log("DeliveryInfo: " + JSON.stringify(deliveryInfo));
+
+			switch (message.type) {
+				case 'signup':
+					signup.checkSignup(message, function (err, res) {
+						if (err) {
+							console.log("Sign up error");
+						}
+						else {
+							connection.publish(m.replyTo, res, {
+								contentType: 'application/json',
+								contentEncoding: 'utf-8',
+								correlationId: m.correlationId
+							});
+						}
+					});
+					break;
+				case 'login':
+					login.checkLogin(message, function(err,res){
+						if(err){
+							console.log("Sign in error");
+						}else{
+							//return index sent
+							connection.publish(m.replyTo, res, {
+								contentType:'application/json',
+								contentEncoding:'utf-8',
+								correlationId:m.correlationId
+							});
+						}
+					});
+					break;
+			}
+		})
+	})
+
+})
