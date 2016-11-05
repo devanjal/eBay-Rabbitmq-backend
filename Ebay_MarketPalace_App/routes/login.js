@@ -19,14 +19,7 @@ exports.checkLogin = function(msg,callback){
 
 		coll.findOne({email: msg.email, password:msg.password}, function(err, user){
 			if (user) {
-				// This way subsequent requests will know the user is logged in.
 
-				// req.session.email = user.last_name;
-				// req.session.first_name = user.first_name;
-				// req.session.last_name = user.last_name;
-				// req.session.user_id = user._id;
-				// req.session.devanjal = user.last_login;
-				//console.log(req.session.username + " is the session");
 				coll.update({_id:mongo.ObjectId(user._id)},
 					{
 						$set:{last_login: new Date().toLocaleString()}
@@ -35,10 +28,12 @@ exports.checkLogin = function(msg,callback){
 				);
 				res.code = "200";
 				res.email=user.email;
+				res._id=user._id;
 				res.first_name=user.first_name;
 				res.last_name=user.last_name;
 				res.user_id=user.user_id;
 				res.devanjal=user.last_login;
+				console.log(res._id);
 				callback(null,res);
 
 			} else {

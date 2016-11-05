@@ -111,7 +111,7 @@ exports.getbidlog = function(req, res){
   }
 };
 exports.get_order_history = function(req, res){
-  if(req.session.user){
+  if(req.session.user_id){
   //console.log("In Credit Card Validation");
     var x=req.session.first_name;
     var y=req.session.last_name;
