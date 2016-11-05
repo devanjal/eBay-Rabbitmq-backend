@@ -13,7 +13,14 @@ exports.checkSignup = function(msg,callback){
 	mongo.connect(mongoURL, function(){
 		console.log('Connected to mongo at: ' + mongoURL);
 		var coll = mongo.collection('user');
-
+		coll.findOne({"email":msg.email}, function (err,result) {
+		console.log(result);
+            if(result){
+                console.log("User Exist")
+                res.code = "401";
+                callback(null,res);
+            }
+		else {
 		coll.insert({first_name: msg.first_name, last_name:msg.last_name,email: msg.email, password:msg.password}, function(err, user){
 			if (user) {
 
@@ -21,12 +28,12 @@ exports.checkSignup = function(msg,callback){
 					callback(null,res);
 
 			} else {
-				console.log("returned false");
-				res.code = "401";
-					callback(null,res);
+				throw err;
 			}
-		});
+		});}
+
 	});
+	})
 };
 
 

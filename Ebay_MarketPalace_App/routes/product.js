@@ -17,7 +17,8 @@ exports.sell =function(msg,callback){
 			item_quantity:msg.item_quantity,
 			ship_location:msg.ship_location,
 			bid_value:msg.bid_value,
-			seller_name:msg.seller_name}, function(err, user){
+			seller_name:msg.seller_name,
+			item_post_date:new Date()}, function(err, user){
 			if (user) {
 				res.code = "200";
 				callback(null,res);
