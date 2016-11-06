@@ -39,10 +39,10 @@ exports.buy_history=function(msg,callback){
 
     mongo.connect(mongoURL, function(){
         console.log('Connected to mongo at: ' + mongoURL);
-        var coll = mongo.collection('userhistory');
+        var coll = mongo.collection('order_history');
 
 
-        coll.find({userid:new ObjectID(msg.userid)}).toArray(function(err, user){
+        coll.find({user_id:msg.user_id}).toArray(function(err, user){
             if (user) {
 
 

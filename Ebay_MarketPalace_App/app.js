@@ -161,8 +161,46 @@ app.get('/order',order_history.post_order_history);
 // }, null, true, 'America/Los_Angeles');
 connection.on('ready', function(){
 	console.log("listening on login_queue,profile_queue,member_queue");
+	connection.queue('userprofile_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 
+			switch(message.type)
+			{
+				case 'editprofile':
+					profile.setProfile(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+			}
+		})
+	});
+	connection.queue('viewprofile_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
 
+			switch(message.type)
+			{
+				case 'profile':
+					viewProfile.viewProfile(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+			}
+		})
+	});
 	connection.queue('profile_queue',function(q){
 		q.subscribe(function(message, headers, deliveryInfo, m){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -210,7 +248,7 @@ connection.on('ready', function(){
 					break;
 			}
 		})
-	})
+	});
 	connection.queue('login_queue', function(q) {
 		q.subscribe(function (message, headers, deliveryInfo, m) {
 			util.log(util.format(deliveryInfo.routingKey, message));

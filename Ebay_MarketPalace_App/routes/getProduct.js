@@ -16,7 +16,7 @@ exports.getUser = function(msg, callback){
 
            // res.send(items);
            res.items=item;
-         console.log(res.items);
+         //console.log(res.items);
             res.code = "200";                   
             callback(null,res); 
         })
