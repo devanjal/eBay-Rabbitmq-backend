@@ -181,6 +181,76 @@ connection.on('ready', function(){
 			}
 		})
 	});
+	connection.queue('shop_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+
+			switch(message.type)
+			{
+				case 'shop':
+					shopping_cart.addcart(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+			}
+		})
+	});
+	connection.queue('cart_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+
+			switch(message.type)
+			{
+				case 'cart':
+					shopping_cart.showCart(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+				case 'removecart':
+					shopping_cart.remove_item(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+			}
+		})
+	});
+	connection.queue('valid_queue',function(q){
+		q.subscribe(function(message, headers, deliveryInfo, m){
+			util.log(util.format( deliveryInfo.routingKey, message));
+			util.log("Message: "+JSON.stringify(message));
+			util.log("DeliveryInfo: "+JSON.stringify(deliveryInfo));
+
+			switch(message.type)
+			{
+				case 'card':
+					validation.getValid(message,function(err,res){
+						connection.publish(m.replyTo, res, {
+							contentType:'application/json',
+							contentEncoding:'utf-8',
+							correlationId:m.correlationId
+						});
+					});
+					break;
+
+			}
+		})
+	});
 	connection.queue('viewprofile_queue',function(q){
 		q.subscribe(function(message, headers, deliveryInfo, m){
 			util.log(util.format( deliveryInfo.routingKey, message));
@@ -198,6 +268,7 @@ connection.on('ready', function(){
 						});
 					});
 					break;
+
 			}
 		})
 	});

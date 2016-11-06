@@ -4,50 +4,67 @@ var mongoURL = "mongodb://localhost:27017/ebay";
 
 
 
-exports.addcart = function (req, res) {
-    // mongo.connect(mongoURL, function(){
-    //     console.log('Connected to mongo at: ' + mongoURL);
-    //     var coll = mongo.collection('shopping_cart');
-    // });
-
-    var user_id = req.session.user_id;
-    var item_id = req.body.item_id;
-    var item_quantity = parseInt(req.body.quantity)+1;
-    var item_name = req.body.item_name;
-    var item_description = req.body.item_description;
-    var seller_name = req.body.seller_name;
-    var ship_location = req.body.ship_location;
-    var item_price = req.body.item_price;
+exports.addcart =function(msg,callback){
+    var res = {};
     mongo.connect(mongoURL, function(){
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('shopping_cart');
-        //console.log(req.session.shop_id);
 
-
-        coll.insert({
-            user_id: user_id,
-            item_price: item_price,
-            item_description: item_description,
-            item_name: item_name,
-            item_quantity: item_quantity,
-            ship_location: ship_location,
-            seller_name: seller_name,
-            item_id: item_id
-        }, function (err, user) {
+        coll.insert({user_id: msg.user_id,
+            item_id:msg.item_id,
+            item_price:msg.item_price,
+            item_description:msg.item_description,
+            item_name:msg.item_name,
+            item_quantity:msg.item_quantity,
+            ship_location:msg.ship_location,
+            //bid_value:msg.bid_value,
+            seller_name:msg.seller_name,
+            item_post_date:msg.item_post_date}, function(err, user){
             if (user) {
-
-                json_responses = {"statusCode": 200};
-                res.redirect("/product")
+                res.code = "200";
+                callback(null,res);
 
             } else {
                 console.log("returned false");
-                json_responses = {"statusCode": 401};
-                res.send(json_responses);
+                res.code = "401";
+                callback(null,res);
             }
         });
 
     });
 };
+// function (req, res) {
+//
+//     mongo.connect(mongoURL, function(){
+//         console.log('Connected to mongo at: ' + mongoURL);
+//         var coll = mongo.collection('shopping_cart');
+//         //console.log(req.session.shop_id);
+//
+//
+//         coll.insert({
+//             user_id: user_id,
+//             item_price: item_price,
+//             item_description: item_description,
+//             item_name: item_name,
+//             item_quantity: item_quantity,
+//             ship_location: ship_location,
+//             seller_name: seller_name,
+//             item_id: item_id
+//         }, function (err, user) {
+//             if (user) {
+//
+//                 json_responses = {"statusCode": 200};
+//                 res.redirect("/product")
+//
+//             } else {
+//                 console.log("returned false");
+//                 json_responses = {"statusCode": 401};
+//                 res.send(json_responses);
+//             }
+//         });
+//
+//     });
+// };
 
 exports.addToUsersCart = function(req,res){
     mongo.connect(mongoURL, function(){
@@ -278,12 +295,13 @@ exports.showCartm = function (req, res) {
         })
     })};
 
-exports.showCart = function (req, res) {
+exports.showCart = function(msg,callback){
+    var res = {};
     mongo.connect(mongoURL, function() {
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('shopping_cart');
-        console.log({user_id:req.session.user_id});
-        var des = coll.find({user_id:req.session.user_id}).toArray(function(err, items) {
+       // console.log({user_id:req.session.user_id});
+        var des = coll.find({user_id:msg.user_id}).toArray(function(err, items) {
             console.log(items);
             if(items.length > 0){
                 console.log(items);
@@ -293,10 +311,10 @@ exports.showCart = function (req, res) {
                     total = total + (items[i].item_price * items[i].item_quantity);
                 }
                 obj.items = items;
-
                 obj.sum = total;
                 var sum=obj.sum;
                 console.log(total)
+                callback(null,items)
                 //   res.send(obj);
             }else {
                 console.log("nullaaaaaaaaa");
@@ -304,9 +322,10 @@ exports.showCart = function (req, res) {
                 var total=0;
                 obj.sum=total;
                 // response.send()
+                callback(null,items)
             }
-            var json_response={items:items, sum:total}
-            res.send(json_response);
+          //  var json_response={items:items, sum:total}
+
 
 
         });
@@ -358,31 +377,51 @@ exports.showCart1 = function (req, res) {
     })
 };
 
-exports.remove_item = function (req, res) {
-
-
+exports.remove_item = function(msg,callback){
+    var res = {};
     mongo.connect(mongoURL, function(){
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('shopping_cart');
 
-        coll.remove({_id:mongo.ObjectId(req.body.item_id)}, function(err, result){
-
-            if (result) {
-
-                json_responses = {"statusCode" : 200};
-                res.send(json_responses);
-                console.log("AFadsfnlfdsknkndskndksc")
+        coll.remove({_id:mongo.ObjectId(msg.item_id)},function(err, user){
+            if (user) {
+                res.code = "200";
+                callback(null,res);
 
             } else {
                 console.log("returned false");
-                json_responses = {"statusCode" : 401};
-                res.send(json_responses);
+                res.code = "401";
+                callback(null,res);
             }
         });
-    });
 
-    // var delete_query = "delete from shopping_cart where item_id="+item_id+";";
-    //
+    });
+};
+// function (req, res) {
+//
+//
+//     mongo.connect(mongoURL, function(){
+//         console.log('Connected to mongo at: ' + mongoURL);
+//         var coll = mongo.collection('shopping_cart');
+//
+//         coll.remove({_id:mongo.ObjectId(msg)}, function(err, result){
+//
+//             if (result) {
+//
+//                 json_responses = {"statusCode" : 200};
+//                 res.send(json_responses);
+//                 console.log("AFadsfnlfdsknkndskndksc")
+//
+//             } else {
+//                 console.log("returned false");
+//                 json_responses = {"statusCode" : 401};
+//                 res.send(json_responses);
+//             }
+//         });
+//     });
+//
+   // var delete_query = "delete from shopping_cart where item_id="+item_id+";";
+
     // mysql.fetchData(delete_query, function (err, result) {
     //     if(err){
     //         console.log("error in delete Query");
@@ -421,7 +460,7 @@ exports.remove_item = function (req, res) {
     //         });
     // });
 
-};
+// };
 
 exports.remove_item1 = function (req, res) {
     var ms = require('mysql');
