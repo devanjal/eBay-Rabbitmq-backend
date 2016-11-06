@@ -14,6 +14,7 @@ var express = require('express')
 	,validation=require('./routes/validation')
 	,viewProfile=require('./routes/viewProfile')
 	,bid_log=require('./routes/bid_log')
+	,passport= require('./routes/passport')
 	,tryy=require('./routes/try')
 	,order_history=require('./routes/order_history');
 var CronJob = require('cron').CronJob;
@@ -328,7 +329,7 @@ connection.on('ready', function(){
 
 			switch (message.type) {
 				case 'signup':
-					signup.checkSignup(message, function (err, res) {
+					passport.signup(message, function (err, res) {
 						if (err) {
 							console.log("Sign up error");
 						}
@@ -342,7 +343,7 @@ connection.on('ready', function(){
 					});
 					break;
 				case 'login':
-					login.checkLogin(message, function(err,res){
+					passport.login(message, function(err,res){
 						if(err){
 							console.log("Sign in error");
 						}else{
