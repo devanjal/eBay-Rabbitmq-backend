@@ -147,12 +147,6 @@ exports.addcart1 = function (req, res) {
 };
 exports.bidcart = function (req, res) {
 
-
-
-    var insert_query = "insert into bid_db(item_id, user_id, bid_price, item_quantity) values ("+ item_id +", "+user_id+", " +
-        total + ", " + item_quantity + ") on duplicate key update item_quantity = "+item_quantity+", bid_price = "+ total +";";
-    var update_shope ='update advertisement set item_price ="'+total+'" where item_id="'+item_id+'"';
-    // var bid_log='insert into bid_log values(now(),"'+item_id+'","'+req.session.user_id+'","'+total+'")';
     var user_id = req.session.user_id;
     var item_id = req.body.item_id;
     var item_quantity = parseInt(req.body.quantity)+1;
@@ -167,7 +161,7 @@ exports.bidcart = function (req, res) {
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('bid');
 
-        // console.log(req.session.shop_id);
+
         coll.insert({
             item_id:item_id,
             user_id: user_id,
@@ -201,15 +195,7 @@ exports.bidcart = function (req, res) {
 
         );
     });
-    // mysql.fetchData(bid_log,function (err,result) {
-    //     if(err){
-    //
-    //     }
-    //     else{
-    //         console.log("success ")
-    //     }
-    //
-    // })
+
 };
 exports.bidcart1 = function (req, res) {
 
@@ -383,7 +369,16 @@ exports.remove_item = function(msg,callback){
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('shopping_cart');
 
-        coll.remove({_id:mongo.ObjectId(msg.item_id)},function(err, user){
+        coll.insert({user_id: msg.user_id,
+            item_id:msg.item_id,
+            item_price:msg.item_price,
+            item_description:msg.item_description,
+            item_name:msg.item_name,
+            item_quantity:msg.item_quantity,
+            ship_location:msg.ship_location,
+            //bid_value:msg.bid_value,
+            seller_name:msg.seller_name,
+            item_post_date:msg.item_post_date}, function(err, user){
             if (user) {
                 res.code = "200";
                 callback(null,res);
@@ -420,8 +415,8 @@ exports.remove_item = function(msg,callback){
 //         });
 //     });
 //
-   // var delete_query = "delete from shopping_cart where item_id="+item_id+";";
-
+    // var delete_query = "delete from shopping_cart where item_id="+item_id+";";
+    //
     // mysql.fetchData(delete_query, function (err, result) {
     //     if(err){
     //         console.log("error in delete Query");

@@ -1,7 +1,3 @@
-
-
-//var passport = require('passport');
-//var localStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcryptjs');
 var mongo = require('./mongo');
 var mongoURL = "mongodb://localhost:27017/ebay";
@@ -11,24 +7,24 @@ exports.login=function(msg,callback){
 
                     mongo.connect(mongoURL, function() {
                         var loginCollection = mongo.collection('user');
-                        loginCollection.findOne({email : msg.username}, function(err, rows) {
+                        loginCollection.findOne({email : msg.username}, function(err, results) {
 
-                            if(err){ console.log("error in login");
-                                //return done(err);
+                            if(err){ console.log("Login Error!!!");
+
                                 callback(null,err);
                             }
-                            else if(rows.length == 0) {console.log("rows = 0");
-                                //return done(null, false);
+                            else if(results.length == 0) {console.log("rows = 0");
+
                                 callback(null,false);}
-                            else if(!bcrypt.compareSync(msg.password, rows.password)) {
-                                console.log("password didnt match");
-                                //return done(null, false);
+                            else if(!bcrypt.compareSync(msg.password, results.password)) {
+                                console.log("password Incorrect");
+
                                 callback(null,false);
                             }
-                            //mongo.close();
-                            console.log(rows.email);
-                            //return done(null, rows);
-                            callback(null,rows);
+
+                            console.log(results.email);
+
+                            callback(null,results);
                         });
                 });
             };
@@ -39,30 +35,27 @@ exports.signup=function(msg,callback){
     mongo.connect(mongoURL, function () {
                 var loginCollection = mongo.collection('user');
 
-                loginCollection.findOne({email: msg.email}, function (err, rows) {
+                loginCollection.findOne({email: msg.email}, function (err, results) {
                     if (err) callback(null,err);
-                    if (rows){
+                    if (results){
                         console.log("Existing User")
-                        //return done(null, false);
                         callback(null,false);
                     }
                     else {
 
-                        var pass = bcrypt.hashSync(msg.password, bcrypt.genSaltSync(8), null)
-                        console.log(pass);
-                        var data =
+                        var encryption = bcrypt.hashSync(msg.password, bcrypt.genSaltSync(8), null);
+                        console.log(encryption);
+                        var user =
                         {
                             first_name: msg.data.first_name,
                             last_name: msg.data.last_name,
                             email: msg.email,
-                            password: pass
+                            password: encryption
                         };
 
-                        loginCollection.insertOne(data, function (err, rows) {
+                        loginCollection.insertOne(user, function (err, rows) {
                             if (err) console.error("Error!!!!" + err);
-                          //  mongo.close();
-                           // return done(null, data);
-                            callback(null,data);
+                            callback(null,user);
                         });
                     }
                 });
