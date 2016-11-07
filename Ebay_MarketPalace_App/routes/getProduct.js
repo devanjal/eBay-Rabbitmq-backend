@@ -10,7 +10,7 @@ exports.getUser = function(msg, callback){
     var json_responses;
 
     mongo.connect(mongoURL, function() {
-        console.log('Connected to mongo at: ' + mongoURL);
+       // console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('advertisement');
      coll.find().toArray(function(err, item) {
 

@@ -161,7 +161,7 @@ app.get('/order',order_history.post_order_history);
 //
 // }, null, true, 'America/Los_Angeles');
 connection.on('ready', function(){
-	console.log("listening on login_queue,profile_queue,member_queue");
+	console.log("listening on login_queue,profile_queue,shop_queue,cart_queue,valid_queue, userprofile_queue, viewprofile_queue");
 	connection.queue('userprofile_queue',function(q){
 		q.subscribe(function(message, headers, deliveryInfo, m){
 			util.log(util.format( deliveryInfo.routingKey, message));

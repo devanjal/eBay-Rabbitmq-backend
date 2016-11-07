@@ -13,7 +13,23 @@ exports.setProfile=function(msg,callback){
     mongo.connect(mongoURL, function(){
         console.log('Connected to mongo at: ' + mongoURL);
         var coll = mongo.collection('user_profile');
-
+        var str1= msg.birthday
+        var regexp1 = /^\d{2}[./-]\d{2}[./-]\d{4}$/;
+        var result1 = regexp1.test(str1);
+        console.log(result1);
+        var str = msg.contact;
+        var regexp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+        var result = regexp.test(str);
+        console.log(result);
+                try{
+                    if(result1==false) throw "DOB error"
+                    if(result==false) throw "Contact No. error"
+                }
+                catch(err){
+                    res.code="400";
+                    res.erro=err;
+                    callback(null,res);
+                }
                 coll.save({user_id:msg.user_id,ebay_handle:msg.ebay_handle,contact:msg.contact,
                     birthday:msg.birthday, first_name:msg.first_name}, function(err, user){
                         if (user) {

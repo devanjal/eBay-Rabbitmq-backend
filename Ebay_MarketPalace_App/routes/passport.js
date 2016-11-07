@@ -21,7 +21,7 @@ exports.login=function(msg,callback){
                                 //return done(null, false);
                                 callback(null,false);}
                             else if(!bcrypt.compareSync(msg.password, rows.password)) {
-                                console.log("pass didn't mTCH");
+                                console.log("password didnt match");
                                 //return done(null, false);
                                 callback(null,false);
                             }
@@ -38,11 +38,11 @@ exports.signup=function(msg,callback){
 
     mongo.connect(mongoURL, function () {
                 var loginCollection = mongo.collection('user');
-                console.log("inside 1");
+
                 loginCollection.findOne({email: msg.email}, function (err, rows) {
                     if (err) callback(null,err);
                     if (rows){
-                        console.log("user Exist")
+                        console.log("Existing User")
                         //return done(null, false);
                         callback(null,false);
                     }
@@ -59,7 +59,7 @@ exports.signup=function(msg,callback){
                         };
 
                         loginCollection.insertOne(data, function (err, rows) {
-                            if (err) console.error("Error in inserting new user" + err);
+                            if (err) console.error("Error!!!!" + err);
                           //  mongo.close();
                            // return done(null, data);
                             callback(null,data);

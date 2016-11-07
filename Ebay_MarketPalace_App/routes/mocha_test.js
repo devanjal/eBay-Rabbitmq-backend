@@ -21,19 +21,19 @@ describe('http tests', function(){
 		})
 	});
 	it('product', function(done){
-		http.get('http://localhost:3000/test', function(res) {
+		http.get('http://localhost:3000/sell_history', function(res) {
 			assert.equal(200, res.statusCode);
 			done();
 		})
 	});
 	it('success buylist', function(done){
-		http.get('http://localhost:3000/buylist', function(res) {
+		http.get('http://localhost:3000/getProduct', function(res) {
 			assert.equal(200, res.statusCode);
 			done();
 		})
 	});
 	it('user log return', function(done){
-		http.get('http://localhost:3000/test2', function(res) {
+		http.get('http://localhost:3000/product', function(res) {
 			assert.equal(200, res.statusCode);
 			done();
 		})

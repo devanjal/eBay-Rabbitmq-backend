@@ -18,7 +18,7 @@ exports.post_order_history=function(msg,callback){
         coll.find({user_id:msg.user_id}).toArray(function(err, user){
             if (user) {
 
-
+                console.log(user);
                 res.code = "200";
                 res.user=user;
                 callback(null,res);

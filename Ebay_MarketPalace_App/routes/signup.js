@@ -12,6 +12,10 @@ exports.checkSignup = function(msg,callback){
 
 	mongo.connect(mongoURL, function(){
 		console.log('Connected to mongo at: ' + mongoURL);
+        if(msg.first_name==null || msg.last_name==null){
+            res.code = "402";
+            callback(null,res);
+        }
 		var coll = mongo.collection('user');
 		coll.findOne({"email":msg.email}, function (err,result) {
 		console.log(result);
